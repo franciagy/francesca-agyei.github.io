@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prototipo SIC - Gestione Riuso</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f2f5;
+        }
+        .modal-backdrop {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.6);
+            z-index: 40;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .modal-content {
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            width: 90%;
+            max-width: 800px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        .table-header {
+            background-color: #f8f9fa;
+        }
+        .status-dot {
+            height: 10px;
+            width: 10px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="app" class="min-h-screen bg-gray-100">
+        <!-- Barra del titolo principale -->
+        <div class="bg-white shadow-md py-2">
+            <h1 class="text-center text-base font-semibold text-gray-700 tracking-wider">SOFTWARE INGEGNERIA CLINICA</h1>
+        </div>
+
+        <!-- Header simulato del software SIC -->
+        <header class="bg-white shadow-sm">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex items-center justify-between">
+                <div class="flex items-center space-x-4">
+                     <!-- Navigazione -->
+                    <nav class="hidden md:flex items-center space-x-1 text-sm">
+                        <a href="#" class="px-3 py-2 rounded-md text-gray-700 hover:bg-gray-100 font-medium"><i class="fas fa-home mr-1"></i> Home</a>
+                        <a href="#" class="px-3 py-2 rounded-md text-gray-700 hover:bg-gray-100 font-medium"><i class="fas fa-sitemap mr-1"></i> Anagrafiche</a>
+                        <a href="#" class="px-3 py-2 rounded-md text-gray-700 hover:bg-gray-100 font-medium"><i class="fas fa-laptop-medical mr-1"></i> Apparecchiature</a>
+                        <a href="#" class="px-3 py-2 rounded-md text-gray-700 hover:bg-gray-100 font-medium"><i class="fas fa-tools mr-1"></i> Manutenzioni</a>
+                        <a href="#" class="px-3 py-2 rounded-md text-gray-700 bg-gray-100 font-medium"><i class="fas fa-file-alt mr-1"></i> Moduli</a>
+                        <a href="#" class="px-3 py-2 rounded-md text-gray-700 hover:bg-gray-100 font-medium"><i class="fas fa-users mr-1"></i> Utenti</a>
+                    </nav>
+                </div>
+                <div class="flex items-center space-x-3">
+                    <span class="text-sm text-gray-600">Francesca A</span>
+                    <i class="fas fa-user-circle text-2xl text-gray-400"></i>
+                </div>
+            </div>
+        </header>
+
+        <!-- Contenuto principale -->
+        <main class="p-4 sm:p-6 lg:p-8">
+            <div class="bg-white p-6 rounded-xl shadow-md">
+                <h1 class="text-2xl font-bold text-gray-800 mb-6">Elenco Richieste fuori uso</h1>
+
+                <!-- Tabella delle richieste -->
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">SIC</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tipologia</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Causa Fuori Uso</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Destinazione</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Stato</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Azioni</th>
+                            </tr>
+                        </thead>
+                        <tbody id="equipment-table" class="bg-white divide-y divide-gray-200">
+                            <!-- Le righe verranno inserite qui da JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modale per la Checklist di Idoneità -->
+    <div id="checklist-modal" class="modal-backdrop hidden">
+        <div class="modal-content">
+            <!-- Contenuto del modale verrà inserito qui -->
+        </div>
+    </div>
+    
+    <!-- Modale per la Scheda Bene -->
+    <div id="scheda-modal" class="modal-backdrop hidden">
+        <div class="modal-content">
+             <!-- Contenuto del modale verrà inserito qui -->
+        </div>
+    </div>
+
+
+    <script>
+        // Dati di esempio
+        const equipmentData = [
+            { id: '450089012', type: 'Elettrocardiografo (ECG)', model: 'PageWriter TC30', brand: 'Philips', year: 2013, photo: 'https://placehold.co/400x300/e2e8f0/334155?text=ECG', cause: 'Apparecchiatura sostituita', destination: 'Da valutare', status: 'Richiesta Presentata', accessories: 'Cavo paziente a 10 terminazioni, carrello originale, cavo di alimentazione.', consumption: 'Un pacco di carta termica incluso.' },
+            { id: '460001007', type: 'Monitor Multiparametrico', model: 'IntelliVue MX700', brand: 'Philips', year: 2014, photo: 'https://placehold.co/400x300/e2e8f0/334155?text=Monitor', cause: 'Irreparabile', destination: 'Macero', status: 'Chiusa', accessories: 'Sensore SpO2, bracciale PNI.', consumption: 'N/A' },
+            { id: '470003006', type: 'Defibrillatore Ospedaliero', model: 'HeartStart XL+', brand: 'Philips', year: 2015, photo: 'https://placehold.co/400x300/e2e8f0/334155?text=Defibrillatore', cause: 'Apparecchiatura sostituita', destination: 'Da valutare', status: 'Richiesta Presentata', accessories: 'Piastre multifunzione, batteria, cavo ECG.', consumption: 'Elettrodi monouso (non inclusi).' },
+            { id: '400008092', type: 'Pompa a Infusione', model: 'Alaris GP', brand: 'CareFusion', year: 2016, photo: 'https://placehold.co/400x300/e2e8f0/334155?text=Pompa', cause: 'Irreparabile', destination: 'Macero', status: 'Chiusa', accessories: 'Cavo di alimentazione.', consumption: 'Set di infusione (non inclusi).' },
+            { id: '490005361', type: 'Aspiratore Chirurgico', model: 'Vario 18', brand: 'Medela', year: 2017, photo: 'https://placehold.co/400x300/e2e8f0/334155?text=Aspiratore', cause: 'Apparecchiatura sostituita', destination: 'Da valutare', status: 'Richiesta Presentata', accessories: 'Contenitore secreti, tubi in silicone.', consumption: 'Filtri (non inclusi).' },
+        ];
+
+        const equipmentTable = document.getElementById('equipment-table');
+        const checklistModal = document.getElementById('checklist-modal');
+        const schedaModal = document.getElementById('scheda-modal');
+
+        // Funzione per renderizzare la tabella
+        function renderTable() {
+            equipmentTable.innerHTML = '';
+            equipmentData.forEach(item => {
+                const row = document.createElement('tr');
+                let statusColor = 'bg-yellow-400';
+                if (item.status === 'Chiusa') statusColor = 'bg-red-500';
+                if (item.status === 'Valutata') statusColor = 'bg-green-500';
+
+                // Logica per mostrare il pulsante "Visualizza Scheda"
+                const viewSchedaButton = item.destination === 'Idoneo al Riuso' ?
+                    `<button onclick="showSchedaBene('${item.id}')" class="ml-4 text-blue-600 hover:text-blue-900" title="Visualizza Scheda Bene">
+                        <i class="fas fa-eye mr-1"></i> Scheda
+                    </button>` : '';
+
+                row.innerHTML = `
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${item.id}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">${item.type}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${item.cause}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold ${item.destination === 'Idoneo al Riuso' ? 'text-green-600' : 'text-gray-700'}">${item.destination}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        <span class="flex items-center">
+                            <span class="status-dot ${statusColor} mr-2"></span>
+                            ${item.status}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                        <button onclick="openChecklist('${item.id}')" class="text-indigo-600 hover:text-indigo-900 ${item.status !== 'Richiesta Presentata' ? 'opacity-50 cursor-not-allowed' : ''}" ${item.status !== 'Richiesta Presentata' ? 'disabled' : ''} title="Valuta Bene">
+                            <i class="fas fa-edit mr-1"></i> Valuta
+                        </button>
+                        ${viewSchedaButton}
+                    </td>
+                `;
+                equipmentTable.appendChild(row);
+            });
+        }
+
+        // Funzione per aprire il modale della checklist
+        window.openChecklist = function(id) {
+            const item = equipmentData.find(e => e.id === id);
+            checklistModal.classList.remove('hidden');
+            checklistModal.innerHTML = `
+                <div class="modal-content">
+                    <div class="p-6 sm:p-8">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <h2 class="text-2xl font-bold text-gray-800">Checklist Tecnica di Idoneità</h2>
+                                <p class="text-sm text-gray-500 mt-1">Bene: ${item.type} (SIC: ${item.id})</p>
+                            </div>
+                            <button onclick="closeModal('checklist-modal')" class="text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
+                        </div>
+                        
+                        <form id="checklist-form" class="mt-6 space-y-4">
+                            <!-- Categorie di verifica -->
+                            <div class="border rounded-lg p-4"><h3 class="font-semibold text-gray-700 mb-3">1. Sicurezza Elettrica (Norma CEI 62-5)</h3><div class="flex items-center space-x-4"><label class="flex items-center"><input type="radio" name="safety" value="ok" class="mr-2" required> Supera il test</label><label class="flex items-center"><input type="radio" name="safety" value="ko" class="mr-2"> Non supera il test</label></div></div>
+                            <div class="border rounded-lg p-4"><h3 class="font-semibold text-gray-700 mb-3">2. Funzionalità (>90% funzioni base)</h3><div class="flex items-center space-x-4"><label class="flex items-center"><input type="radio" name="functionality" value="ok" class="mr-2" required> Esecuzione con successo</label><label class="flex items-center"><input type="radio" name="functionality" value="ko" class="mr-2"> Esecuzione fallita</label></div></div>
+                            <div class="border rounded-lg p-4"><h3 class="font-semibold text-gray-700 mb-3">3. Componenti (Kit accessori essenziali)</h3><div class="flex items-center space-x-4"><label class="flex items-center"><input type="radio" name="components" value="ok" class="mr-2" required> Kit completo</label><label class="flex items-center"><input type="radio" name="components" value="ko" class="mr-2"> Kit incompleto</label></div></div>
+                            <div class="border rounded-lg p-4"><h3 class="font-semibold text-gray-700 mb-3">4. Documentazione (Manuale d'uso)</h3><div class="flex items-center space-x-4"><label class="flex items-center"><input type="radio" name="docs" value="ok" class="mr-2" required> Manuale disponibile</label><label class="flex items-center"><input type="radio" name="docs" value="ko" class="mr-2"> Manuale non disponibile</label></div></div>
+                            <div class="border rounded-lg p-4"><h3 class="font-semibold text-gray-700 mb-3">5. Stato di Conservazione</h3><div class="flex items-center space-x-4"><label class="flex items-center"><input type="radio" name="condition" value="ok" class="mr-2" required> Integrità strutturale</label><label class="flex items-center"><input type="radio" name="condition" value="ko" class="mr-2"> Danni strutturali</label></div></div>
+                            <div class="border rounded-lg p-4"><h3 class="font-semibold text-gray-700 mb-3">6. Storico Manutentivo (da software SIC)</h3><div class="flex items-center space-x-4"><label class="flex items-center"><input type="radio" name="history" value="ok" class="mr-2" required> Assenza guasti critici</label><label class="flex items-center"><input type="radio" name="history" value="ko" class="mr-2"> Presenza guasti critici</label></div></div>
+                            <div class="border rounded-lg p-4 bg-gray-50">
+                                <h3 class="font-semibold text-gray-700 mb-3">Esito Finale Valutazione</h3>
+                                <select id="final-destination" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md" required>
+                                    <option value="" disabled selected>Seleziona una destinazione...</option>
+                                    <option value="Idoneo al Riuso">Idoneo al Riuso Solidale</option>
+                                    <option value="Macero">Macero</option>
+                                    <option value="Pezzi di Ricambio">Pezzi di Ricambio</option>
+                                    <option value="Muletto">Muletto</option>
+                                </select>
+                            </div>
+                        </form>
+                        <div class="mt-8 flex justify-end space-x-3">
+                            <button onclick="closeModal('checklist-modal')" class="px-4 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300">Annulla</button>
+                            <button onclick="saveEvaluation('${id}')" class="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700">Salva Valutazione</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+        
+        // Funzione per salvare la valutazione
+        window.saveEvaluation = function(id) {
+            const form = document.getElementById('checklist-form');
+            if (!form.checkValidity()) {
+                const errorDiv = document.createElement('div');
+                errorDiv.className = 'text-red-600 bg-red-100 p-3 rounded-md mt-4';
+                errorDiv.innerText = 'Errore: Per favore, completa tutti i campi della checklist.';
+                if (!form.querySelector('.text-red-600')) {
+                    form.appendChild(errorDiv);
+                }
+                return;
+            }
+            const destination = document.getElementById('final-destination').value;
+            if (!destination) {
+                 alert('Per favore, seleziona un esito finale.');
+                return;
+            }
+
+            const item = equipmentData.find(e => e.id === id);
+            item.destination = destination;
+            item.status = 'Valutata';
+            
+            closeModal('checklist-modal');
+            renderTable();
+
+        }
+        
+        // Funzione per mostrare la Scheda Bene
+        window.showSchedaBene = function(id) {
+            const item = equipmentData.find(e => e.id === id);
+            schedaModal.classList.remove('hidden');
+            schedaModal.innerHTML = `
+                <div class="modal-content p-6 sm:p-8">
+                    <div class="flex justify-between items-start mb-4">
+                        <h2 class="text-2xl font-bold text-gray-800">Scheda Bene Standard</h2>
+                        <button onclick="closeModal('scheda-modal')" class="text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
+                    </div>
+                    <p class="text-sm text-green-700 bg-green-100 p-3 rounded-md mb-6"><i class="fas fa-check-circle mr-2"></i>Bene marcato come "Idoneo al Riuso". La seguente scheda è pronta per la pubblicazione sulla piattaforma regionale.</p>
+                    
+                    <div class="border border-gray-300 rounded-xl p-4 space-y-6">
+                        <!-- Sezione A -->
+                        <div class="p-4 rounded-lg bg-gray-50">
+                            <h3 class="font-bold text-lg text-gray-700 border-b pb-2 mb-3">Sezione A: Dati Identificativi Bene</h3>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                                <div><strong>SIC:</strong> ${item.id}</div>
+                                <div><strong>Tipologia:</strong> ${item.type}</div>
+                                <div><strong>Marca:</strong> ${item.brand}</div>
+                                <div><strong>Modello:</strong> ${item.model}</div>
+                                <div><strong>Anno di Acquisizione:</strong> ${item.year}</div>
+                                <div class="md:col-span-2">
+                                    <strong>Foto del Bene:</strong>
+                                    <img src="${item.photo}" alt="Foto di ${item.type}" class="mt-2 rounded-lg border w-48 h-auto">
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Sezione B -->
+                        <div class="p-4 rounded-lg bg-gray-50">
+                            <h3 class="font-bold text-lg text-gray-700 border-b pb-2 mb-3">Sezione B: Stato Tecnico e Funzionale</h3>
+                            <div class="space-y-2 text-sm">
+                                <p><strong>Esito Valutazione Idoneità:</strong> <span class="font-semibold text-green-600">IDONEO AL RIUSO</span></p>
+                                <p><strong>Stato Funzionale:</strong> Funzionante. Esegue correttamente le funzioni di acquisizione e stampa.</p>
+                                <p><strong>Esito Sicurezza Elettrica:</strong> <span class="font-semibold text-green-600">VERIFICA SUPERATA</span></p>
+                                <p><strong>Note Tecniche:</strong> Batteria con autonomia ridotta, consigliato uso con alimentazione di rete.</p>
+                            </div>
+                        </div>
+                        <!-- Sezione C -->
+                        <div class="p-4 rounded-lg bg-gray-50">
+                            <h3 class="font-bold text-lg text-gray-700 border-b pb-2 mb-3">Sezione C: Documentazione e Accessori</h3>
+                            <div class="space-y-2 text-sm">
+                                <p><strong>Manuale d'Uso:</strong> Sì (formato PDF disponibile)</p>
+                                <p><strong>Accessori Inclusi:</strong> ${item.accessories}</p>
+                                <p><strong>Materiali di Consumo:</strong> ${item.consumption}</p>
+                            </div>
+                        </div>
+                         <!-- Sezione D -->
+                        <div class="p-4 rounded-lg bg-gray-50">
+                            <h3 class="font-bold text-lg text-gray-700 border-b pb-2 mb-3">Sezione D: Informazioni per il Ritiro</h3>
+                            <div class="space-y-2 text-sm">
+                                <p><strong>Ubicazione Bene:</strong> Magazzino Ingegneria Clinica, P.O. Spedali Civili, Brescia.</p>
+                                <p><strong>Contatto Referente:</strong> Segreteria SIC - Tel: 030 XXX XXXX</p>
+                                <p><strong>Disponibilità per il Ritiro:</strong> Dal lunedì al venerdì, ore 9:00-12:00, previo appuntamento.</p>
+                            </div>
+                        </div>
+                    </div>
+                     <div class="mt-8 flex justify-end">
+                        <button onclick="closeModal('scheda-modal')" class="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700">Chiudi</button>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Funzione per chiudere i modali
+        window.closeModal = function(modalId) {
+            document.getElementById(modalId).classList.add('hidden');
+        }
+
+        // Renderizza la tabella all'avvio
+        renderTable();
+    </script>
+
+</body>
+</html>
