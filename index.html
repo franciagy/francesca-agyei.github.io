@@ -3,302 +3,401 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Preventivo Pro Premium - Dashboard</title>
+    <title>Preventivo Pro Premium - Dashboard Elettricista</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         body { 
             font-family: 'Inter', sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
             min-height: 100vh;
         }
         
         .glass {
-            backdrop-filter: blur(20px);
+            backdrop-filter: blur(10px);
             background: rgba(255, 255, 255, 0.1);
             border: 1px solid rgba(255, 255, 255, 0.2);
         }
         
-        .card-hover {
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        
         .card-hover:hover {
-            transform: translateY(-8px);
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-        }
-        
-        .gradient-text {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
+            transform: translateY(-4px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2);
         }
         
         .pulse-dot {
-            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+            animation: pulse 2s infinite;
         }
         
         @keyframes pulse {
             0%, 100% { opacity: 1; }
-            50% { opacity: .5; }
+            50% { opacity: .6; }
         }
         
-        .floating {
-            animation: floating 3s ease-in-out infinite;
+        .profession-icon {
+            background: linear-gradient(135deg, #fbbf24, #f59e0b);
         }
         
-        @keyframes floating {
-            0% { transform: translate(0, 0px); }
-            50% { transform: translate(0, -10px); }
-            100% { transform: translate(0, -0px); }
-        }
-        
-        .notification-badge {
-            animation: bounce 1s infinite;
-        }
-        
-        @keyframes bounce {
-            0%, 100% { transform: translateY(-25%); }
-            50% { transform: translateY(0); }
+        /* Grafici compatti */
+        .chart-container {
+            height: 200px !important;
         }
     </style>
 </head>
 <body class="text-white">
-    <!-- Navigation Premium -->
-    <nav class="glass p-4 m-4 rounded-2xl">
+    <!-- Profession Selector (simulazione) -->
+    <div class="hidden" id="profession-data">
+        {
+            "electrician": {
+                "name": "Elettricista",
+                "icon": "⚡",
+                "color": "#fbbf24",
+                "metrics": {
+                    "conversion": 89,
+                    "revenue": 52100,
+                    "pipeline": 89400,
+                    "clients": 78
+                },
+                "services": ["Impianti", "Quadri", "Certificazioni", "Manutenzioni", "Emergenze"],
+                "serviceData": [35, 25, 20, 15, 5],
+                "revenueData": [15000, 21000, 18000, 28000, 35000, 52100]
+            },
+            "plumber": {
+                "name": "Idraulico", 
+                "icon": "💧",
+                "color": "#3b82f6",
+                "metrics": {
+                    "conversion": 82,
+                    "revenue": 48300,
+                    "pipeline": 76200,
+                    "clients": 92
+                },
+                "services": ["Riparazioni", "Caldaie", "Bagni", "Disotturazioni", "Emergenze"],
+                "serviceData": [40, 25, 15, 15, 5],
+                "revenueData": [18000, 19000, 22000, 31000, 38000, 48300]
+            },
+            "painter": {
+                "name": "Imbianchino",
+                "icon": "🎨", 
+                "color": "#8b5cf6",
+                "metrics": {
+                    "conversion": 76,
+                    "revenue": 31200,
+                    "pipeline": 45800,
+                    "clients": 134
+                },
+                "services": ["Interni", "Esterni", "Decorazioni", "Restauri", "Consulenze"],
+                "serviceData": [45, 30, 15, 8, 2],
+                "revenueData": [12000, 15000, 19000, 22000, 28000, 31200]
+            }
+        }
+    </div>
+
+    <!-- Navigation -->
+    <nav class="glass p-4 m-4 rounded-xl">
         <div class="flex items-center justify-between">
-            <div class="flex items-center space-x-4">
-                <div class="w-10 h-10 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center floating">
-                    <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
-                        <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/>
-                    </svg>
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 profession-icon rounded-lg flex items-center justify-center text-xl" id="nav-icon">
+                    ⚡
                 </div>
                 <div>
-                    <h1 class="text-2xl font-bold gradient-text">Preventivo Pro</h1>
-                    <p class="text-xs text-white/70">Premium Dashboard</p>
+                    <h1 class="text-xl font-bold">Preventivo Pro</h1>
+                    <p class="text-xs text-white/70" id="profession-name">Dashboard Elettricista</p>
                 </div>
             </div>
             
-            <div class="flex items-center space-x-4">
-                <div class="relative">
-                    <button class="p-3 glass rounded-xl hover:bg-white/20 transition-all">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-5-5-5 5h5zm0 0v-3a2 2 0 012-2h1"/>
-                        </svg>
-                    </button>
-                    <div class="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full notification-badge"></div>
-                </div>
+            <div class="flex items-center space-x-3">
+                <!-- Profession Switcher -->
+                <select id="profession-selector" class="bg-white/20 border border-white/30 rounded-lg px-3 py-2 text-sm text-white">
+                    <option value="electrician">⚡ Elettricista</option>
+                    <option value="plumber">💧 Idraulico</option>
+                    <option value="painter">🎨 Imbianchino</option>
+                </select>
                 
-                <div class="flex items-center space-x-3 glass px-4 py-2 rounded-xl">
-                    <div class="w-8 h-8 bg-gradient-to-r from-green-400 to-blue-500 rounded-full flex items-center justify-center">
-                        <span class="text-sm font-bold">M</span>
-                    </div>
-                    <div class="text-sm">
-                        <p class="font-semibold">Mario Rossi</p>
-                        <p class="text-white/70 text-xs">Premium Plan</p>
-                    </div>
+                <div class="flex items-center space-x-2 glass px-3 py-2 rounded-lg">
+                    <div class="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center text-xs font-bold">M</div>
+                    <span class="text-sm font-medium">Mario Rossi</span>
                 </div>
             </div>
         </div>
     </nav>
 
-    <!-- Main Content -->
-    <div class="px-4 pb-8 space-y-6">
-        <!-- Stats Cards Premium -->
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <div class="glass p-6 rounded-2xl card-hover">
-                <div class="flex items-center justify-between mb-4">
-                    <div class="p-3 bg-gradient-to-r from-green-400 to-emerald-500 rounded-xl">
-                        <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
+    <div class="px-4 pb-6 space-y-4">
+        <!-- Stats Cards Compatte -->
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+            <div class="glass p-4 rounded-xl card-hover transition-all">
+                <div class="flex items-center justify-between mb-2">
+                    <div class="w-8 h-8 bg-green-500 rounded-lg flex items-center justify-center">
+                        <svg class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 24 24">
                             <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
                         </svg>
                     </div>
                     <div class="pulse-dot w-2 h-2 bg-green-400 rounded-full"></div>
                 </div>
-                <h3 class="text-3xl font-bold mb-1">87%</h3>
-                <p class="text-white/70">Tasso Conversione</p>
-                <p class="text-green-300 text-sm mt-2">↗ +12% vs. mese scorso</p>
+                <h3 class="text-xl font-bold" id="conversion-rate">89%</h3>
+                <p class="text-white/70 text-sm">Conversione</p>
+                <p class="text-green-300 text-xs mt-1">+8% vs. mese scorso</p>
             </div>
             
-            <div class="glass p-6 rounded-2xl card-hover">
-                <div class="flex items-center justify-between mb-4">
-                    <div class="p-3 bg-gradient-to-r from-blue-400 to-indigo-500 rounded-xl">
-                        <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
+            <div class="glass p-4 rounded-xl card-hover transition-all">
+                <div class="flex items-center justify-between mb-2">
+                    <div class="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center">
+                        <svg class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 24 24">
                             <path d="M11.8 10.9c-2.27-.59-3-1.2-3-2.15 0-1.09 1.01-1.85 2.7-1.85 1.78 0 2.44.85 2.5 2.1h2.21c-.07-1.72-1.12-3.3-3.21-3.81V3h-3v2.16c-1.94.42-3.5 1.68-3.5 3.61 0 2.31 1.91 3.46 4.7 4.13 2.5.6 3 1.48 3 2.41 0 .69-.49 1.79-2.7 1.79-2.06 0-2.87-.92-2.98-2.1h-2.2c.12 2.19 1.76 3.42 3.68 3.83V21h3v-2.15c1.95-.37 3.5-1.5 3.5-3.55 0-2.84-2.43-3.81-4.7-4.4z"/>
                         </svg>
                     </div>
                 </div>
-                <h3 class="text-3xl font-bold mb-1">€47.350</h3>
-                <p class="text-white/70">Fatturato Mese</p>
-                <p class="text-blue-300 text-sm mt-2">↗ +23% vs. mese scorso</p>
+                <h3 class="text-xl font-bold" id="revenue">€52.100</h3>
+                <p class="text-white/70 text-sm">Fatturato</p>
+                <p class="text-blue-300 text-xs mt-1">+15% vs. mese scorso</p>
             </div>
             
-            <div class="glass p-6 rounded-2xl card-hover">
-                <div class="flex items-center justify-between mb-4">
-                    <div class="p-3 bg-gradient-to-r from-purple-400 to-pink-500 rounded-xl">
-                        <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
+            <div class="glass p-4 rounded-xl card-hover transition-all">
+                <div class="flex items-center justify-between mb-2">
+                    <div class="w-8 h-8 bg-purple-500 rounded-lg flex items-center justify-center">
+                        <svg class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 24 24">
                             <path d="M16 6l2.29 2.29-4.88 4.88-4-4L2 16.59 3.41 18l6-6 4 4 6.3-6.29L22 12V6z"/>
                         </svg>
                     </div>
                 </div>
-                <h3 class="text-3xl font-bold mb-1">€125.900</h3>
-                <p class="text-white/70">Pipeline Totale</p>
-                <p class="text-purple-300 text-sm mt-2">43 preventivi in attesa</p>
+                <h3 class="text-xl font-bold" id="pipeline">€89.400</h3>
+                <p class="text-white/70 text-sm">In Attesa</p>
+                <p class="text-purple-300 text-xs mt-1" id="pending-quotes">12 preventivi</p>
             </div>
             
-            <div class="glass p-6 rounded-2xl card-hover">
-                <div class="flex items-center justify-between mb-4">
-                    <div class="p-3 bg-gradient-to-r from-orange-400 to-red-500 rounded-xl">
-                        <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
+            <div class="glass p-4 rounded-xl card-hover transition-all">
+                <div class="flex items-center justify-between mb-2">
+                    <div class="w-8 h-8 bg-orange-500 rounded-lg flex items-center justify-center">
+                        <svg class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 24 24">
                             <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
                         </svg>
                     </div>
                 </div>
-                <h3 class="text-3xl font-bold mb-1">156</h3>
-                <p class="text-white/70">Clienti Attivi</p>
-                <p class="text-orange-300 text-sm mt-2">+8 nuovi questa settimana</p>
+                <h3 class="text-xl font-bold" id="clients">78</h3>
+                <p class="text-white/70 text-sm">Clienti</p>
+                <p class="text-orange-300 text-xs mt-1">+3 questa settimana</p>
             </div>
         </div>
 
-        <!-- Charts Section -->
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <div class="glass p-6 rounded-2xl">
-                <h3 class="text-xl font-bold mb-6">Andamento Fatturato</h3>
-                <canvas id="revenueChart" width="400" height="200"></canvas>
+        <!-- Charts Section Compatta -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            <div class="glass p-4 rounded-xl">
+                <h3 class="text-lg font-bold mb-3">Fatturato 6 Mesi</h3>
+                <div class="chart-container">
+                    <canvas id="revenueChart" height="200"></canvas>
+                </div>
             </div>
             
-            <div class="glass p-6 rounded-2xl">
-                <h3 class="text-xl font-bold mb-6">Top Servizi</h3>
-                <canvas id="servicesChart" width="400" height="200"></canvas>
+            <div class="glass p-4 rounded-xl">
+                <h3 class="text-lg font-bold mb-3" id="services-title">Tipologie Lavoro</h3>
+                <div class="chart-container">
+                    <canvas id="servicesChart" height="200"></canvas>
+                </div>
             </div>
         </div>
 
-        <!-- Recent Activity Premium -->
-        <div class="glass p-6 rounded-2xl">
-            <div class="flex items-center justify-between mb-6">
-                <h3 class="text-xl font-bold">Attività Recente</h3>
-                <button class="px-4 py-2 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-xl font-semibold hover:shadow-lg transition-all">
+        <!-- Smart Insights per Professione -->
+        <div class="glass p-4 rounded-xl">
+            <h3 class="text-lg font-bold mb-3">💡 Insight Intelligenti</h3>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-3" id="insights-container">
+                <!-- Inseriti dinamicamente -->
+            </div>
+        </div>
+
+        <!-- Attività Recente Compatta -->
+        <div class="glass p-4 rounded-xl">
+            <div class="flex items-center justify-between mb-3">
+                <h3 class="text-lg font-bold">Attività Recente</h3>
+                <button class="text-sm px-3 py-1 bg-white/20 rounded-lg hover:bg-white/30 transition-all">
                     Vedi Tutto
                 </button>
             </div>
             
-            <div class="space-y-4">
-                <div class="flex items-center space-x-4 p-4 bg-white/5 rounded-xl">
-                    <div class="w-10 h-10 bg-green-500 rounded-full flex items-center justify-center">
-                        <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 24 24">
-                            <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
-                        </svg>
-                    </div>
-                    <div class="flex-1">
-                        <p class="font-semibold">Preventivo Accettato</p>
-                        <p class="text-white/70 text-sm">Mario Verdi ha accettato il preventivo #1247</p>
-                    </div>
-                    <div class="text-right">
-                        <p class="font-bold text-green-400">€3.500</p>
-                        <p class="text-white/70 text-sm">2 min fa</p>
-                    </div>
-                </div>
-                
-                <div class="flex items-center space-x-4 p-4 bg-white/5 rounded-xl">
-                    <div class="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center">
-                        <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 24 24">
-                            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
-                        </svg>
-                    </div>
-                    <div class="flex-1">
-                        <p class="font-semibold">Nuovo Cliente VIP</p>
-                        <p class="text-white/70 text-sm">Luigi Bianchi è stato promosso a cliente VIP</p>
-                    </div>
-                    <div class="text-right">
-                        <p class="font-bold text-blue-400">Premium</p>
-                        <p class="text-white/70 text-sm">15 min fa</p>
-                    </div>
-                </div>
-                
-                <div class="flex items-center space-x-4 p-4 bg-white/5 rounded-xl">
-                    <div class="w-10 h-10 bg-yellow-500 rounded-full flex items-center justify-center">
-                        <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 24 24">
-                            <path d="M13 3c-4.97 0-9 4.03-9 9H1l3.89 3.89.07.14L9 12H6c0-3.87 3.13-7 7-7s7 3.13 7 7-3.13 7-7 7c-1.93 0-3.68-.79-4.94-2.06l-1.42 1.42C8.27 19.99 10.51 21 13 21c4.97 0 9-4.03 9-9s-4.03-9-9-9zm-1 5v5l4.28 2.54.72-1.21-3.5-2.08V8H12z"/>
-                        </svg>
-                    </div>
-                    <div class="flex-1">
-                        <p class="font-semibold">Reminder Automatico</p>
-                        <p class="text-white/70 text-sm">Preventivo #1245 scade tra 2 giorni - follow-up consigliato</p>
-                    </div>
-                    <div class="text-right">
-                        <p class="font-bold text-yellow-400">€1.800</p>
-                        <p class="text-white/70 text-sm">1 ora fa</p>
-                    </div>
-                </div>
+            <div class="space-y-2" id="recent-activities">
+                <!-- Inserite dinamicamente -->
             </div>
         </div>
     </div>
 
     <script>
-        // Revenue Chart
-        const revenueCtx = document.getElementById('revenueChart').getContext('2d');
-        new Chart(revenueCtx, {
-            type: 'line',
-            data: {
-                labels: ['Gen', 'Feb', 'Mar', 'Apr', 'Mag', 'Giu'],
-                datasets: [{
-                    label: 'Fatturato',
-                    data: [12000, 19000, 15000, 25000, 32000, 47000],
-                    borderColor: 'rgb(99, 102, 241)',
-                    backgroundColor: 'rgba(99, 102, 241, 0.1)',
-                    tension: 0.4,
-                    fill: true
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        labels: { color: 'white' }
-                    }
-                },
-                scales: {
-                    x: { 
-                        ticks: { color: 'white' },
-                        grid: { color: 'rgba(255,255,255,0.1)' }
-                    },
-                    y: { 
-                        ticks: { color: 'white' },
-                        grid: { color: 'rgba(255,255,255,0.1)' }
-                    }
-                }
-            }
+        // Dati professioni
+        const professionData = JSON.parse(document.getElementById('profession-data').textContent);
+        let currentProfession = 'electrician';
+        let revenueChart, servicesChart;
+
+        // Inizializzazione
+        document.addEventListener('DOMContentLoaded', () => {
+            updateDashboard(currentProfession);
+            
+            document.getElementById('profession-selector').addEventListener('change', (e) => {
+                currentProfession = e.target.value;
+                updateDashboard(currentProfession);
+            });
         });
 
-        // Services Chart
-        const servicesCtx = document.getElementById('servicesChart').getContext('2d');
-        new Chart(servicesCtx, {
-            type: 'doughnut',
-            data: {
-                labels: ['Elettrico', 'Idraulico', 'Muratura', 'Altro'],
-                datasets: [{
-                    data: [35, 25, 20, 20],
-                    backgroundColor: [
-                        'rgb(34, 197, 94)',
-                        'rgb(59, 130, 246)',
-                        'rgb(168, 85, 247)',
-                        'rgb(249, 115, 22)'
-                    ]
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        labels: { color: 'white' }
+        function updateDashboard(profession) {
+            const data = professionData[profession];
+            
+            // Update header
+            document.getElementById('nav-icon').textContent = data.icon;
+            document.getElementById('profession-name').textContent = `Dashboard ${data.name}`;
+            
+            // Update metrics
+            document.getElementById('conversion-rate').textContent = `${data.metrics.conversion}%`;
+            document.getElementById('revenue').textContent = `€${data.metrics.revenue.toLocaleString()}`;
+            document.getElementById('pipeline').textContent = `€${data.metrics.pipeline.toLocaleString()}`;
+            document.getElementById('clients').textContent = data.metrics.clients;
+            document.getElementById('pending-quotes').textContent = `${Math.floor(data.metrics.pipeline / 3000)} preventivi`;
+            
+            // Update services title
+            document.getElementById('services-title').textContent = `Servizi ${data.name}`;
+            
+            // Update charts
+            updateCharts(data);
+            
+            // Update insights
+            updateInsights(profession, data);
+            
+            // Update activities
+            updateActivities(profession, data);
+        }
+
+        function updateCharts(data) {
+            // Revenue Chart
+            if (revenueChart) revenueChart.destroy();
+            const revenueCtx = document.getElementById('revenueChart').getContext('2d');
+            revenueChart = new Chart(revenueCtx, {
+                type: 'line',
+                data: {
+                    labels: ['Gen', 'Feb', 'Mar', 'Apr', 'Mag', 'Giu'],
+                    datasets: [{
+                        label: 'Fatturato',
+                        data: data.revenueData,
+                        borderColor: data.color,
+                        backgroundColor: data.color + '20',
+                        tension: 0.4,
+                        fill: true,
+                        pointRadius: 3
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        x: { 
+                            ticks: { color: 'rgba(255,255,255,0.8)', font: { size: 11 } },
+                            grid: { display: false }
+                        },
+                        y: { 
+                            ticks: { color: 'rgba(255,255,255,0.8)', font: { size: 11 } },
+                            grid: { color: 'rgba(255,255,255,0.1)' }
+                        }
                     }
                 }
-            }
-        });
+            });
+
+            // Services Chart
+            if (servicesChart) servicesChart.destroy();
+            const servicesCtx = document.getElementById('servicesChart').getContext('2d');
+            servicesChart = new Chart(servicesCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: data.services,
+                    datasets: [{
+                        data: data.serviceData,
+                        backgroundColor: [
+                            '#10b981', '#3b82f6', '#8b5cf6', '#f59e0b', '#ef4444'
+                        ]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: { 
+                                color: 'white',
+                                font: { size: 10 },
+                                padding: 10
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function updateInsights(profession, data) {
+            const insights = {
+                electrician: [
+                    { icon: '🔌', title: 'Picco Richieste', desc: 'Impianti +40% in Primavera', color: 'bg-green-500' },
+                    { icon: '⚡', title: 'Emergenze', desc: 'Maggior margine (€80/h)', color: 'bg-yellow-500' },
+                    { icon: '📋', title: 'Certificazioni', desc: 'Richieste ogni 5 anni', color: 'bg-blue-500' }
+                ],
+                plumber: [
+                    { icon: '🔧', title: 'Emergenze', desc: 'Weekend: +60% tariffa', color: 'bg-red-500' },
+                    { icon: '🏠', title: 'Ristrutturazioni', desc: 'Maggior valore medio', color: 'bg-purple-500' },
+                    { icon: '❄️', title: 'Stagionalità', desc: 'Inverno: +30% chiamate', color: 'bg-blue-500' }
+                ],
+                painter: [
+                    { icon: '🌅', title: 'Stagione Top', desc: 'Mar-Giu: 70% fatturato', color: 'bg-green-500' },
+                    { icon: '🏠', title: 'Esterni', desc: 'Margine +25% vs interni', color: 'bg-orange-500' },
+                    { icon: '🎨', title: 'Decorativo', desc: 'Clienti Premium', color: 'bg-purple-500' }
+                ]
+            };
+
+            const container = document.getElementById('insights-container');
+            container.innerHTML = insights[profession].map(insight => `
+                <div class="bg-white/10 rounded-lg p-3">
+                    <div class="flex items-center gap-2 mb-1">
+                        <div class="w-6 h-6 ${insight.color} rounded flex items-center justify-center text-sm">
+                            ${insight.icon}
+                        </div>
+                        <h4 class="font-semibold text-sm">${insight.title}</h4>
+                    </div>
+                    <p class="text-white/80 text-xs">${insight.desc}</p>
+                </div>
+            `).join('');
+        }
+
+        function updateActivities(profession, data) {
+            const activities = {
+                electrician: [
+                    { type: 'success', icon: '✅', title: 'Quadro Elettrico Accettato', client: 'Villa Rossi', amount: '€2.100', time: '5 min fa' },
+                    { type: 'warning', icon: '⚠️', title: 'Certificazione in Scadenza', client: 'Condominio Aurora', amount: '€350', time: '2 ore fa' }
+                ],
+                plumber: [
+                    { type: 'success', icon: '✅', title: 'Caldaia Sostituita', client: 'Fam. Bianchi', amount: '€3.200', time: '1 ora fa' },
+                    { type: 'info', icon: '🔧', title: 'Emergenza Programmata', client: 'Ufficio Centro', amount: '€180', time: '3 ore fa' }
+                ],
+                painter: [
+                    { type: 'success', icon: '✅', title: 'Appartamento Completato', client: 'Via Roma 15', amount: '€1.800', time: '30 min fa' },
+                    { type: 'info', icon: '📋', title: 'Preventivo Richiesto', client: 'Villa Verde', amount: '€4.500', time: '1 ora fa' }
+                ]
+            };
+
+            const container = document.getElementById('recent-activities');
+            const colors = { success: 'bg-green-500', warning: 'bg-yellow-500', info: 'bg-blue-500' };
+            
+            container.innerHTML = activities[profession].map(activity => `
+                <div class="flex items-center space-x-3 p-2 bg-white/5 rounded-lg">
+                    <div class="w-8 h-8 ${colors[activity.type]} rounded-full flex items-center justify-center text-sm">
+                        ${activity.icon}
+                    </div>
+                    <div class="flex-1">
+                        <p class="font-medium text-sm">${activity.title}</p>
+                        <p class="text-white/70 text-xs">${activity.client}</p>
+                    </div>
+                    <div class="text-right">
+                        <p class="font-bold text-sm text-green-400">${activity.amount}</p>
+                        <p class="text-white/70 text-xs">${activity.time}</p>
+                    </div>
+                </div>
+            `).join('');
+        }
     </script>
 </body>
 </html>
