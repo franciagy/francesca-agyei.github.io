@@ -1,116 +1,127 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="it">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Preventivo Pro – Supabase</title>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.23/jspdf.plugin.autotable.min.js"></script>
+  <title>Hashtag Intelligence — Analizza gli hashtag dei competitor</title>
+  <meta name="description" content="Scopri gli hashtag vincenti dei tuoi competitor. 5 analisi gratuite al mese.">
   <style>
-    /* include your existing CSS rules here */
+    /* Semplice CSS responsivo */
+    :root{--accent:#0ea5a4;--dark:#0f172a;--muted:#6b7280;--bg:#f8fafc}
+    body{font-family:Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial; margin:0; background:var(--bg); color:var(--dark)}
+    .container{max-width:1100px;margin:36px auto;padding:24px}
+    header{display:flex;align-items:center;justify-content:space-between}
+    .logo{display:flex;gap:12px;align-items:center}
+    .logo img{width:44px;height:44px;border-radius:8px}
+    h1{margin:8px 0 0;font-size:28px}
+    p.lead{color:var(--muted);margin:10px 0 20px}
+    .hero{display:grid;grid-template-columns:1fr 380px;gap:28px;align-items:center}
+    .card{background:white;padding:20px;border-radius:12px;box-shadow:0 6px 18px rgba(15,23,42,0.06)}
+    .cta-btn{display:inline-block;padding:12px 18px;border-radius:10px;background:var(--accent);color:white;text-decoration:none;font-weight:600}
+    .features{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:20px}
+    .feature{background:white;padding:14px;border-radius:10px}
+    .pricing{display:flex;gap:14px;margin-top:20px}
+    .price{flex:1;background:white;padding:18px;border-radius:10px;text-align:center}
+    footer{margin-top:28px;color:var(--muted);font-size:13px}
+    form input, form button{width:100%;padding:10px;margin-top:8px;border-radius:8px;border:1px solid #e6eef0}
+    @media(max-width:880px){.hero{grid-template-columns:1fr} .features{grid-template-columns:1fr 1fr}}
   </style>
 </head>
-<body class="text-slate-800">
-  <!-- Loader, Auth view, App view... same as your previous layout -->
-  <div id="loader-overlay" class="loader-overlay active fixed inset-0 bg-white items-center justify-center z-[100]">…</div>
-  <div id="auth-view" class="hidden min-h-screen flex items-center justify-center bg-slate-100 p-4">…</div>
-  <div id="app" class="flex h-screen bg-slate-100 hidden">… your full app layout …</div>
+<body>
+  <div class="container">
+    <header>
+      <div class="logo">
+        <img src="https://images.unsplash.com/photo-1515378791036-0648a3ef77b2?q=80&w=400&auto=format&fit=crop&ixlib=rb-4.0.3&s=placeholder" alt="logo">
+        <div>
+          <strong>Hashtag Intelligence</strong>
+          <div style="font-size:13px;color:var(--muted)">Analisi hashtag competitor + suggerimenti</div>
+        </div>
+      </div>
+      <nav style="display:flex;gap:12px;align-items:center">
+        <a href="#pricing" style="color:var(--muted);text-decoration:none">Prezzi</a>
+        <a href="#faq" style="color:var(--muted);text-decoration:none">FAQ</a>
+        <a class="cta-btn" href="#cta">Provalo</a>
+      </nav>
+    </header>
 
-  <script type="module">
-    import { createClient } from '@supabase/supabase-js';
-    const supabase = createClient('https://jneqdbzwfbcdjzctbkyr.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpuZXFkYnp3ZmJjZGp6Y3lyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ1MDAzNjgsImV4cCI6MjA3MDA3NjM2OH0.iL2RERw9JJyu_vVGbwP3QWGOHXmfC7f8qmGsyMRtUko');
+    <main class="hero" style="margin-top:18px">
+      <div>
+        <h1>Trova gli hashtag vincenti dei tuoi competitor</h1>
+        <p class="lead">Analisi rapida, suggerimenti intelligenti e report scaricabili. 5 analisi gratuite al mese.</p>
 
-    const authError = document.getElementById('auth-error');
-    const loginForm = document.getElementById('login-form');
-    const registerForm = document.getElementById('register-form');
-    const loginBtn = document.getElementById('login-btn');
-    const registerBtn = document.getElementById('register-btn');
-    const showRegister = document.getElementById('show-register');
-    const showLogin = document.getElementById('show-login');
-    const authView = document.getElementById('auth-view');
-    const appEl = document.getElementById('app');
-    const logoutBtn = document.getElementById('logout-btn');
-    const userEmailDisplay = document.getElementById('user-email');
+        <div class="card">
+          <h3>Come funziona</h3>
+          <ol style="margin:8px 0 0;padding-left:18px;color:var(--muted)">
+            <li>Inserisci username Instagram/TikTok del competitor</li>
+            <li>Estraiamo gli ultimi post pubblici e analizziamo gli hashtag</li>
+            <li>Ricevi top 20 hashtag + 10 suggerimenti alternativi</li>
+          </ol>
+          <div style="margin-top:14px">
+            <a class="cta-btn" href="#cta">Analizza ora — 5 prove gratuite</a>
+          </div>
+        </div>
 
-    showRegister.addEventListener('click', e => { e.preventDefault(); loginForm.classList.add('hidden'); registerForm.classList.remove('hidden'); authError.textContent = ''; });
-    showLogin.addEventListener('click', e => { e.preventDefault(); registerForm.classList.add('hidden'); loginForm.classList.remove('hidden'); authError.textContent = ''; });
+        <div class="features">
+          <div class="feature"><strong>Top hashtag</strong><div style="color:var(--muted);margin-top:8px">Classifica dei 20 hashtag più usati</div></div>
+          <div class="feature"><strong>Suggerimenti AI</strong><div style="color:var(--muted);margin-top:8px">10 alternative ottimizzate per engagement</div></div>
+          <div class="feature"><strong>Report scaricabili</strong><div style="color:var(--muted);margin-top:8px">CSV e PDF</div></div>
+        </div>
 
-    loginBtn.addEventListener('click', async () => {
-      authError.textContent = '';
-      const { error } = await supabase.auth.signInWithPassword({ email: document.getElementById('login-email').value, password: document.getElementById('login-password').value });
-      if (error) authError.textContent = `Login error: ${error.message}`;
-    });
+        <section id="pricing" style="margin-top:18px">
+          <h3>Prezzi</h3>
+          <div class="pricing">
+            <div class="price">
+              <div style="font-size:22px;font-weight:700">Free</div>
+              <div style="color:var(--muted);margin:8px 0">5 analisi/mese</div>
+            </div>
+            <div class="price">
+              <div style="font-size:22px;font-weight:700">Pro</div>
+              <div style="color:var(--muted);margin:8px 0">€19 / mese — analisi illimitate</div>
+            </div>
+            <div class="price">
+              <div style="font-size:22px;font-weight:700">Agency</div>
+              <div style="color:var(--muted);margin:8px 0">€49 / mese — multi‑account + API</div>
+            </div>
+          </div>
+        </section>
 
-    registerBtn.addEventListener('click', async () => {
-      authError.textContent = '';
-      const { error } = await supabase.auth.signUp({ email: document.getElementById('register-email').value, password: document.getElementById('register-password').value });
-      if (error) authError.textContent = `Registration error: ${error.message}`;
-      else authError.textContent = 'Check your email to confirm registration.';
-    });
+      </div>
 
-    supabase.auth.onAuthStateChange((event, session) => {
-      if (session?.user) {
-        userEmailDisplay.textContent = session.user.email;
-        authView.classList.add('hidden');
-        appEl.classList.remove('hidden');
-        initAppForUser(session.user.id);
-      } else {
-        appEl.classList.add('hidden');
-        authView.classList.remove('hidden');
-        userEmailDisplay.textContent = '';
-      }
-    });
+      <aside>
+        <div class="card">
+          <h3 id="cta">Prova gratuita</h3>
+          <p style="color:var(--muted);margin-top:6px">Inserisci la tua email e l'username del profilo da analizzare. Ti manderemo il report via email.</p>
+          <!-- Sostituisci action con il form provider (Mailchimp/ConvertKit/Netlify forms) -->
+          <form action="#" method="POST">
+            <label style="font-size:13px;color:var(--muted)">Email</label>
+            <input type="email" name="email" placeholder="tu@email.com" required>
+            <label style="font-size:13px;color:var(--muted);margin-top:8px">Username Instagram/TikTok</label>
+            <input type="text" name="username" placeholder="es. competitor_official" required>
+            <button type="submit" style="margin-top:12px" class="cta-btn">Ricevi report gratuito</button>
+          </form>
 
-    logoutBtn.addEventListener('click', async () => await supabase.auth.signOut());
+          <hr style="margin:14px 0;border:none;border-top:1px solid #eef3f4">
+          <div style="font-size:13px;color:var(--muted)">Oppure</div>
+          <a href="#" style="display:block;margin-top:10px;text-align:center;padding:10px;border-radius:8px;background:#f1f5f4;text-decoration:none">Scopri demo</a>
+        </div>
 
-    async function initAppForUser(uid) {
-      // Load or create user settings
-      let { data: userRow } = await supabase.from('users').select().eq('id', uid).single();
-      if (!userRow) {
-        await supabase.from('users').insert({ id: uid, clients: [], products: [], company: {}, pdf_color: '#4f46e5', next_quote_number: 1 });
-        userRow = (await supabase.from('users').select().eq('id', uid).single()).data;
-      }
-      applySettings(userRow);
+        <div style="margin-top:12px;font-size:13px;color:var(--muted)">Image credit: Unsplash</div>
+      </aside>
+    </main>
 
-      const { data: quotes } = await supabase.from('quotes').select().eq('user_id', uid);
-      renderArchive(quotes);
-      updateDashboard(quotes);
+    <footer>
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap">
+        <div style="max-width:600px">
+          <strong>Hashtag Intelligence</strong> — Prodotto MVP per analisi hashtag. Non conserviamo dati sensibili. <a href="#faq">FAQ</a>
+        </div>
+        <div style="color:var(--muted)">© 2025</div>
+      </div>
 
-      // Setup listener via realtime (optional)
-      supabase.from(`quotes:user_id=eq.${uid}`).on('INSERT', payload => {
-        loadAllQuotes(uid);
-      }).subscribe();
-    }
-
-    async function loadAllQuotes(uid) {
-      const { data: quotes } = await supabase.from('quotes').select().eq('user_id', uid);
-      renderArchive(quotes);
-      updateDashboard(quotes);
-    }
-
-    async function updateUserData(changes) {
-      const user = supabase.auth.user();
-      await supabase.from('users').update(changes).eq('id', user.id);
-    }
-
-    // Insert your applySettings(), renderClients(), renderProducts(),
-    // renderArchive(), updateDashboard(), gatherQuoteDataFromForm(),
-    // saveQuote(), generatePDF(), switchView(), etc. functions from your original code,
-    // adjusting Firestore calls to use updateUserData(), supabase.from('quotes').insert(), loadAllQuotes() and so on.
-
-    // On page load check session immediately
-    (async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (session?.user) {
-        userEmailDisplay.textContent = session.user.email;
-        authView.classList.add('hidden');
-        appEl.classList.remove('hidden');
-        await initAppForUser(session.user.id);
-      }
-    })();
-  </script>
+      <section id="faq" style="margin-top:14px">
+        <h4>FAQ</h4>
+        <div style="color:var(--muted);font-size:13px">Q: È legale fare scraping? A: Preferiamo API ufficiali; useremo scraping solo come fallback e con rate limiting.</div>
+      </section>
+    </footer>
+  </div>
 </body>
 </html>
